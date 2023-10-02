@@ -11,25 +11,25 @@ echo "Building overlay APK"
 ( cd build && ./build.sh ../MulchWebView/Android.mk )
 
 echo "Building flashable package (zip)"
-mkdir build/.temp
+mkdir -p build/.temp
 mkdir -p build/.temp/META-INF/com/google/android
 cp update-binary build/.temp/META-INF/com/google/android
 echo "# Dummy file; update-binary is a shell script." > build/.temp/META-INF/com/google/android/updater-script
 mkdir -p build/.temp/system/addon.d
 cp 99-mulch-webview.sh build/.temp/system/addon.d
-mkdir -p build/.temp/vendor/overlay
-cp build/treble-overlay-mulch-webview.apk build/.temp/vendor/overlay
+mkdir -p build/.temp/product/overlay
+cp build/treble-overlay-mulch-webview.apk build/.temp/product/overlay
 ( cd build/.temp && zip -r - . > ../MulchSystemWebViewOverlay.zip . ) &> /dev/null
 rm -r build/.temp
 
 echo "Building Magisk module (zip)"
-mkdir build/.temp
+mkdir -p build/.temp
 mkdir -p build/.temp/META-INF/com/google/android
 curl -sL https://github.com/topjohnwu/Magisk/raw/master/scripts/module_installer.sh > build/.temp/META-INF/com/google/android/update-binary
 test -s build/.temp/META-INF/com/google/android/update-binary
 echo "#MAGISK" > build/.temp/META-INF/com/google/android/updater-script
-mkdir -p build/.temp/system/vendor/overlay
-cp build/treble-overlay-mulch-webview.apk build/.temp/system/vendor/overlay
+mkdir -p build/.temp/system/product/overlay
+cp build/treble-overlay-mulch-webview.apk build/.temp/system/product/overlay
 cp module.prop build/.temp/
 ( cd build/.temp && zip -r - . > ../MulchSystemWebViewMagisk.zip . ) &> /dev/null
 rm -r build/.temp
