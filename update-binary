@@ -15,13 +15,20 @@ unzip -oq ${3} -d "/tmp/MulchWebViewInstaller"
 # Create faux mountpoints
 mkdir /picodroid_system
 mkdir /picodroid_vendor
+mkdir /picodroid_product
 
 # Mount the neccesary partitions
 mount -o rw $(readlink -f $(cd /dev && find /dev/block -type l -name system$(getprop ro.boot.slot_suffix) | head -n 1 )) /picodroid_system
 mount -o rw $(readlink -f $(cd /dev && find /dev/block -type l -name vendor$(getprop ro.boot.slot_suffix) | head -n 1 )) /picodroid_vendor
+mount -o rw $(readlink -f $(cd /dev && find /dev/block -type l -name product$(getprop ro.boot.slot_suffix) | head -n 1 )) /picodroid_product
 
 # Copy the overlay to the appropriate location
-cp /tmp/MulchWebViewInstaller/vendor/overlay/treble-overlay-mulch-webview.apk /picodroid_vendor/overlay
+if [ -f /tmp/MulchWebViewInstaller/vendor/overlay/treble-overlay-mulch-webview.apk ]; then
+    cp /tmp/MulchWebViewInstaller/vendor/overlay/treble-overlay-mulch-webview.apk /picodroid_vendor/overlay
+fi
+if [ -f /tmp/MulchWebViewInstaller/product/overlay/treble-overlay-mulch-webview.apk ]; then
+    cp /tmp/MulchWebViewInstaller/product/overlay/treble-overlay-mulch-webview.apk /picodroid_product/overlay
+fi
 
 # Copy the OTA survival script to the appropriate location
 if [ -d /picodroid_system/system/addon.d ]
@@ -34,10 +41,12 @@ chmod 755 /picodroid_system/system/addon.d/99-mulch-webview.sh
 # Unmount the previously mounted partitions
 umount -l /picodroid_system
 umount -l /picodroid_vendor
+umount -l /picodroid_product
 
 # Delete de faux mountpoints
 rmdir /picodroid_system
 rmdir /picodroid_vendor
+rmdir /picodroid_product
 
 # Clean up the installation files
 rm -rf /tmp/MulchWebViewInstaller
